@@ -1,44 +1,28 @@
-## Global Variables
-@BaseUrl = http://localhost:8080/api
+### GET Root
+GET http://localhost:8080/
+Accept: application/json
 
-## Todos
-## ---------------------------------
-# @name PostTodo
-POST {{BaseUrl}}/todos
-Content-Type: application/json
 
-{
-    "title": "Belajar PBO bersama Eliza",
-    "description": "Mempelajari dasar-dasar PBO untuk pengembangan aplikasi web."
-}
-###
+### GET All Cash Flow
+GET http://localhost:8080/cashflow
+Accept: application/json
 
-# @name GetAllTodos
-GET {{BaseUrl}}/todos
-###
 
-# @name GetAllTodosWithSearch
-GET {{BaseUrl}}/todos?search=PBO Praktikum9
-###
+### GET Cash Flow by ID
+GET http://localhost:8080/cashflow/1
+Accept: application/json
 
-## Mengambil ID Todo pertama dari response GetAllTodos
-@todoId = {{GetAllTodos.response.body.data.todos[0].id}}
 
-# @name GetTodoById
-GET {{BaseUrl}}/todos/{{todoId}}
-###
+### ADD New Cash Flow
+POST http://localhost:8080/cashflow/add?type=Expense&amount=75000&description=Ngopi%20bareng
+Accept: application/json
 
-# @name PutTodoById
-PUT {{BaseUrl}}/todos/{{todoId}}
-Content-Type: application/json
 
-{
-    "title": "Belajar Spring Boot Lanjutan",
-    "description": "Mempelajari fitur-fitur lanjutan Spring Boot, Security,dan Rest API.",
-    "isFinished": true
-}
-###
+### DELETE Cash Flow by ID
+DELETE http://localhost:8080/cashflow/2
+Accept: application/json
 
-# @name DeleteTodoById
-DELETE {{BaseUrl}}/todos/{{todoId}}
-###
+
+### GET Cash Flow Summary
+GET http://localhost:8080/cashflow/summary
+Accept: application/json
