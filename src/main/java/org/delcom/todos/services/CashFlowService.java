@@ -1,64 +1,72 @@
 package org.delcom.todos.services;
 
-import org.springframework.stereotype.Service;
 import org.delcom.todos.entities.CashFlow;
 import org.delcom.todos.repositories.CashFlowRepository;
-import org.delcom.todos.types.EType;
-import org.delcom.todos.types.ESource;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CashFlowService {
 
     private final CashFlowRepository cashFlowRepository;
 
+    // Constructor Injection (Wajib untuk lulus Test TA)
     public CashFlowService(CashFlowRepository cashFlowRepository) {
         this.cashFlowRepository = cashFlowRepository;
     }
 
-    public List<CashFlow> getAllCashFlows() {
+    // 1. CREATE
+    public CashFlow createCashFlow(String type, String source, String label, Integer amount, String description) {
+        CashFlow newFlow = new CashFlow(type, source, label, amount, description);
+        newFlow.onCreate();
+        return cashFlowRepository.save(newFlow);
+    }
+
+    // 2. READ ALL / SEARCH
+    public List<CashFlow> getAllCashFlows(String keyword) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return cashFlowRepository.findByKeyword(keyword.trim());
+        }
         return cashFlowRepository.findAll();
     }
 
-    public CashFlow addCashFlow(EType type, ESource source, String namaItem, String detail, long amount) {
-        CashFlow flow = new CashFlow(type, source, namaItem, detail, amount);
-        return cashFlowRepository.save(flow);
+    // 3. READ BY ID
+    public CashFlow getCashFlowById(UUID id) {
+        return cashFlowRepository.findById(id).orElse(null);
     }
 
-    public Optional<CashFlow> getCashFlowById(Long id) {
-        return cashFlowRepository.findById(id);
+    // 4. GET LABELS
+    public List<String> getCashFlowLabels() {
+        return cashFlowRepository.findDistinctLabels();
     }
 
-    public CashFlow updateCashFlow(Long id, EType type, ESource source, String namaItem, String detail, long amount) {
-        return cashFlowRepository.findById(id)
-                .map(existing -> {
-                    existing.setType(type);
-                    existing.setSource(source);
-                    existing.setNamaItem(namaItem);
-                    existing.setKeteranganDetail(detail);
-                    existing.setAmount(amount);
-                    return cashFlowRepository.save(existing);
-                })
-                .orElseThrow(() -> new RuntimeException("CashFlow not found with ID: " + id));
+    // 5. UPDATE
+    public CashFlow updateCashFlow(UUID id, String type, String source, String label, Integer amount, String description) {
+        Optional<CashFlow> existingFlowOpt = cashFlowRepository.findById(id);
+
+        if (existingFlowOpt.isPresent()) {
+            CashFlow existingFlow = existingFlowOpt.get();
+            
+            existingFlow.setType(type);
+            existingFlow.setSource(source);
+            existingFlow.setLabel(label);
+            existingFlow.setAmount(amount);
+            existingFlow.setDescription(description);
+            
+            existingFlow.onUpdate();
+            return cashFlowRepository.save(existingFlow);
+        }
+        return null;
     }
 
-    public void deleteCashFlow(Long id) {
-        cashFlowRepository.deleteById(id);
-    }
-
-    public long getTotalInflow() {
-        return cashFlowRepository.findAll().stream()
-                .filter(c -> c.getType() == EType.INFLOW)
-                .mapToLong(CashFlow::getAmount)
-                .sum();
-    }
-
-    public long getTotalOutflow() {
-        return cashFlowRepository.findAll().stream()
-                .filter(c -> c.getType() == EType.OUTFLOW)
-                .mapToLong(CashFlow::getAmount)
-                .sum();
+    // 6. DELETE
+    public boolean deleteCashFlow(UUID id) {
+        if (cashFlowRepository.existsById(id)) {
+            cashFlowRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }
