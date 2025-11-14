@@ -8,10 +8,10 @@ POST {{BaseUrl}}/todos
 Content-Type: application/json
 
 {
-    "title": "Belajar PBO bersama Eliza",
+    "title": "Kelas Karina ",
     "description": "Mempelajari dasar-dasar PBO untuk pengembangan aplikasi web."
 }
-###
+
 
 # @name GetAllTodos
 GET {{BaseUrl}}/todos
@@ -22,7 +22,7 @@ GET {{BaseUrl}}/todos?search=PBO Praktikum9
 ###
 
 ## Mengambil ID Todo pertama dari response GetAllTodos
-@todoId = 
+@todoId = {{GetAllTodos.response.body.data.todos[0].id}}
 
 # @name GetTodoById
 GET {{BaseUrl}}/todos/{{todoId}}
